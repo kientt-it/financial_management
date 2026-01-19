@@ -11,6 +11,8 @@ export const connectDB = async () => {
     console.log('✅ MongoDB connected successfully');
   } catch (error) {
     console.error('❌ MongoDB connection error:', error.message);
-    process.exit(1);
+    console.error('Full error:', error);
+    // Tạm thời không exit - để debug
+    console.warn('⚠️  Server sẽ chạy mà không có MongoDB');
   }
 };
