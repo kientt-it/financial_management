@@ -21,6 +21,7 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadMonthlyData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth]);
 
   const loadData = async () => {
