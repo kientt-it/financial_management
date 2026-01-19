@@ -1,68 +1,92 @@
 import express from 'express';
-import { expenses, members } from '../models/data.js';
+import { Expense } from '../models/Expense.js';
 
 const router = express.Router();
-let nextId = Math.max(...expenses.map(e => e.id), 0) + 1;
 
 // Get all expenses
-router.get('/', (req, res) => {
-  res.json(expenses);
+router.get('/', async (req, res) => {
+  try {
+    const expenses = await Expense.find().sort({ date: -1 });
+    res.json(expenses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Get expenses by month
-router.get('/month/:month', (req, res) => {
-  const { month } = req.params;
-  const filtered = expenses.filter(e => e.date.startsWith(month));
-  res.json(filtered);
+router.get('/month/:month', async (req, res) => {
+  try {
+    const { month } = req.params;
+    const [year, monthNum] = month.split('-');
+    const startDate = new Date(year, monthNum - 1, 1);
+    const endDate = new Date(year, monthNum, 0);
+
+    const expenses = await Expense.find({
+      date: { $gte: startDate, $lte: endDate }
+    }).sort({ date: -1 });
+
+    res.json(expenses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Add expense
-router.post('/', (req, res) => {
-  const { date, description, amount, category, payer, participants, status } = req.body;
-  
-  if (!date || !description || !amount || !payer) {
-    return res.status(400).json({ error: 'Missing required fields' });
+router.post('/', async (req, res) => {
+  try {
+    const { date, description, amount, category, payer, participants, status } = req.body;
+
+    if (!date || !description || !amount || !payer) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const expense = new Expense({
+      date: new Date(date),
+      description,
+      amount: Number(amount),
+      category: category || 'Other',
+      payer,
+      participants: participants || [payer],
+      status: status || 'Pending'
+    });
+
+    await expense.save();
+    res.status(201).json(expense);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  const newExpense = {
-    id: nextId++,
-    date,
-    description,
-    amount: Number(amount),
-    category: category || 'Other',
-    payer,
-    participants: participants || [payer],
-    status: status || 'Pending'
-  };
-
-  expenses.push(newExpense);
-  res.status(201).json(newExpense);
 });
 
 // Update expense
-router.put('/:id', (req, res) => {
-  const { id } = req.params;
-  const expense = expenses.find(e => e.id === Number(id));
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const expense = await Expense.findByIdAndUpdate(id, req.body, { new: true });
 
-  if (!expense) {
-    return res.status(404).json({ error: 'Expense not found' });
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    res.json(expense);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  Object.assign(expense, req.body);
-  res.json(expense);
 });
 
 // Delete expense
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  const index = expenses.findIndex(e => e.id === Number(id));
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const expense = await Expense.findByIdAndDelete(id);
 
-  if (index === -1) {
-    return res.status(404).json({ error: 'Expense not found' });
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    res.json(expense);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  const deleted = expenses.splice(index, 1);
-  res.json(deleted[0]);
 });
 
 export default router;
