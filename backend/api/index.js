@@ -2,10 +2,6 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from '../config/db.js';
-import { seedDatabase } from '../models/seed.js';
-import expenseRoutes from '../routes/expenses.js';
-import memberRoutes from '../routes/members.js';
-import calculationRoutes from '../routes/calculations.js';
 
 dotenv.config();
 
@@ -20,35 +16,38 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Initialize DB on first request
-let dbConnected = false;
-let seedDone = false;
+// Initialize DB once
+let dbInitialized = false;
 
 const initializeDB = async () => {
-  if (!dbConnected) {
+  if (!dbInitialized) {
     try {
-      console.log('🔗 Initializing MongoDB...');
+      console.log('🔗 Connecting to MongoDB...');
       await connectDB();
-      dbConnected = true;
+      dbInitialized = true;
+      console.log('✅ MongoDB ready');
     } catch (error) {
       console.error('❌ DB Error:', error.message);
-    }
-  }
-  
-  if (!seedDone && dbConnected) {
-    try {
-      console.log('🌱 Seeding database...');
-      await seedDatabase();
-      seedDone = true;
-    } catch (error) {
-      console.error('❌ Seed Error:', error.message);
+      // Don't fail - API can work in memory
     }
   }
 };
 
+// Initialize DB on startup (non-blocking)
+initializeDB().catch(err => console.error('Init error:', err));
+
+// Import routes after express setup
+import expenseRoutes from '../routes/expenses.js';
+import memberRoutes from '../routes/members.js';
+import calculationRoutes from '../routes/calculations.js';
+
 // Routes
 app.get('/api/health', (req, res) => {
-  res.json({ status: 'ok', timestamp: new Date().toISOString() });
+  res.json({ 
+    status: 'ok', 
+    timestamp: new Date().toISOString(),
+    db: dbInitialized ? 'connected' : 'connecting'
+  });
 });
 
 app.get('/api', (req, res) => {
@@ -64,20 +63,9 @@ app.get('/api', (req, res) => {
   });
 });
 
-app.use('/api/expenses', async (req, res, next) => {
-  await initializeDB();
-  next();
-}, expenseRoutes);
-
-app.use('/api/members', async (req, res, next) => {
-  await initializeDB();
-  next();
-}, memberRoutes);
-
-app.use('/api/calculations', async (req, res, next) => {
-  await initializeDB();
-  next();
-}, calculationRoutes);
+app.use('/api/expenses', expenseRoutes);
+app.use('/api/members', memberRoutes);
+app.use('/api/calculations', calculationRoutes);
 
 // 404 handler
 app.use((req, res) => {
