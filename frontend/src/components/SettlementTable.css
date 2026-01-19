@@ -1,0 +1,145 @@
+.settlement-table {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.settlement-table h3 {
+  margin-bottom: 15px;
+  color: #212529;
+  font-size: 18px;
+}
+
+.calc-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.calc-table thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.calc-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+.calc-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e9ecef;
+  color: #212529;
+}
+
+.calc-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.calc-table tbody tr.owes {
+  background: #fff3e0;
+}
+
+.calc-table tbody tr.overpaid {
+  background: #e8f5e9;
+}
+
+.calc-table .name {
+  font-weight: 600;
+  min-width: 100px;
+}
+
+.calc-table .amount,
+.calc-table .paid,
+.calc-table .owes-amount {
+  text-align: right;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+}
+
+.calc-table .owes-amount {
+  font-size: 16px;
+}
+
+.calc-table .owes-amount.negative {
+  color: #d32f2f;
+}
+
+.calc-table .owes-amount.positive {
+  color: #4caf50;
+}
+
+.calc-table .bank {
+  font-size: 12px;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .settlement-table {
+    padding: 15px;
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+
+  .settlement-table h3 {
+    font-size: 16px;
+    margin-bottom: 12px;
+  }
+
+  .calc-table {
+    font-size: 13px;
+    min-width: 100%;
+  }
+
+  .calc-table th,
+  .calc-table td {
+    padding: 10px 6px;
+  }
+
+  .calc-table th {
+    font-size: 12px;
+  }
+
+  .calc-table .bank {
+    display: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .settlement-table {
+    padding: 12px;
+  }
+
+  .settlement-table h3 {
+    font-size: 15px;
+  }
+
+  .calc-table {
+    font-size: 12px;
+  }
+
+  .calc-table th,
+  .calc-table td {
+    padding: 8px 4px;
+  }
+
+  .calc-table th {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .calc-table .name {
+    min-width: 60px;
+  }
+
+  .calc-table .amount {
+    display: none;
+  }
+
+  .calc-table .paid {
+    font-size: 11px;
+  }
+}

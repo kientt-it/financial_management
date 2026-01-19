@@ -1,0 +1,197 @@
+.expense-list {
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.expense-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.expense-table thead {
+  background: #f8f9fa;
+  border-bottom: 2px solid #e9ecef;
+}
+
+.expense-table th {
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #495057;
+  font-size: 14px;
+}
+
+.expense-table td {
+  padding: 12px;
+  border-bottom: 1px solid #e9ecef;
+  color: #212529;
+}
+
+.expense-table tbody tr:hover {
+  background: #f8f9fa;
+}
+
+.expense-table tbody tr.completed {
+  opacity: 0.7;
+}
+
+.expense-table .description {
+  font-weight: 500;
+}
+
+.expense-table .amount {
+  text-align: right;
+  font-weight: 600;
+  color: #d32f2f;
+}
+
+.expense-table .payer {
+  font-weight: 500;
+}
+
+.expense-table .participants {
+  text-align: center;
+}
+
+.badge {
+  display: inline-block;
+  background: #e3f2fd;
+  color: #1976d2;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.expense-table .status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f5f5f5;
+  font-size: 14px;
+}
+
+.expense-table .status.completed {
+  background: #4caf50;
+  color: white;
+}
+
+.expense-table .actions {
+  text-align: center;
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.btn-edit, .btn-delete {
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  min-height: 36px;
+  min-width: 36px;
+}
+
+.btn-edit {
+  background: #2196f3;
+  color: white;
+}
+
+.btn-edit:hover {
+  background: #1976d2;
+}
+
+.btn-edit:active {
+  transform: scale(0.95);
+}
+
+.btn-delete {
+  background: #f44336;
+  color: white;
+}
+
+.btn-delete:hover {
+  background: #d32f2f;
+}
+
+.btn-delete:active {
+  transform: scale(0.95);
+}
+
+@media (max-width: 768px) {
+  .expense-list {
+    border-radius: 6px;
+    overflow-x: auto;
+  }
+
+  .expense-table {
+    font-size: 13px;
+    min-width: 100%;
+  }
+
+  .expense-table th,
+  .expense-table td {
+    padding: 10px 6px;
+  }
+
+  .expense-table th {
+    font-size: 12px;
+  }
+
+  .btn-edit, .btn-delete {
+    padding: 8px 10px;
+    font-size: 12px;
+    min-height: 40px;
+  }
+
+  .actions {
+    display: flex;
+    gap: 6px !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .expense-table {
+    font-size: 12px;
+  }
+
+  .expense-table th,
+  .expense-table td {
+    padding: 8px 4px;
+  }
+
+  .expense-table th {
+    font-size: 11px;
+    font-weight: 600;
+  }
+
+  .description,
+  .payer,
+  .participants {
+    display: none;
+  }
+
+  .expense-table thead tr {
+    display: flex;
+    flex-wrap: wrap;
+  }
+
+  .expense-table thead th {
+    min-width: 20%;
+    flex: 1;
+  }
+
+  .btn-edit, .btn-delete {
+    padding: 6px 8px;
+    font-size: 11px;
+    min-height: 36px;
+  }
+}
