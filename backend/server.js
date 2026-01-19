@@ -21,7 +21,12 @@ const startServer = async () => {
     await seedDatabase();
 
     // Middleware
-    app.use(cors());
+    app.use(cors({
+      origin: '*',
+      credentials: true,
+      methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+      allowedHeaders: ['Content-Type']
+    }));
     app.use(express.json());
 
     // Routes
