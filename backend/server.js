@@ -14,29 +14,35 @@ const PORT = process.env.PORT || 5000;
 
 // Connect to MongoDB and seed data
 const startServer = async () => {
-  await connectDB();
-  await seedDatabase();
+  console.log('\n🚀 Starting server...');
+  
+  try {
+    await connectDB();
+    await seedDatabase();
 
-  // Middleware
-  app.use(cors());
-  app.use(express.json());
+    // Middleware
+    app.use(cors());
+    app.use(express.json());
 
-  // Routes
-  app.use('/api/expenses', expenseRoutes);
-  app.use('/api/members', memberRoutes);
-  app.use('/api/calculations', calculationRoutes);
+    // Routes
+    app.use('/api/expenses', expenseRoutes);
+    app.use('/api/members', memberRoutes);
+    app.use('/api/calculations', calculationRoutes);
 
-  // Health check
-  app.get('/api/health', (req, res) => {
-    res.json({ status: 'ok' });
-  });
+    // Health check
+    app.get('/api/health', (req, res) => {
+      res.json({ status: 'ok', timestamp: new Date().toISOString() });
+    });
 
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-  });
+    app.listen(PORT, () => {
+      console.log(`\n✅ Server running on port ${PORT}`);
+      console.log(`📍 API: http://localhost:${PORT}/api`);
+      console.log(`🏥 Health: http://localhost:${PORT}/api/health\n`);
+    });
+  } catch (error) {
+    console.error('Failed to start server:', error);
+    process.exit(1);
+  }
 };
 
-startServer().catch(error => {
-  console.error('Failed to start server:', error);
-  process.exit(1);
-});
+startServer();

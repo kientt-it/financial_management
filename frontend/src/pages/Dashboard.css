@@ -75,6 +75,16 @@
   font-size: 16px;
 }
 
+.error-message {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  color: #856404;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+  font-size: 14px;
+}
+
 @media (max-width: 768px) {
   .dashboard {
     min-height: 100vh;
