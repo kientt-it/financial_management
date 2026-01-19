@@ -1,11 +1,7 @@
 import React from 'react';
 import './ExpenseList.css';
 
-export default function ExpenseList({ expenses, onEdit, onDelete, members }) {
-  const getMemberInfo = (payerName) => {
-    return members.find(m => m.name === payerName);
-  };
-
+export default function ExpenseList({ expenses, onEdit, onDelete }) {
   const formatCurrency = (value) => {
     return new Intl.NumberFormat('vi-VN', {
       style: 'currency',

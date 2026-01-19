@@ -99,10 +99,7 @@ export default function ExpenseForm({ onSubmit, members, initialData = null }) {
         <div className="form-group">
           <label>Người thanh toán *</label>
           <select name="payer" value={formData.payer} onChange={handleChange} required>
-            <option value="">-- Chọn --</option>
-            {members.map(m => (
-              <option key={m.id} value={m.name}>{m.name}</option>
-            ))}
+            <option value="Other">Người</option>
           </select>
         </div>
         <div className="form-group">

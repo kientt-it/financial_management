@@ -1,69 +1,89 @@
 import express from 'express';
-import { members } from '../models/data.js';
+import { Member } from '../models/Member.js';
 
 const router = express.Router();
-let nextId = Math.max(...members.map(m => m.id), 0) + 1;
 
 // Get all members
-router.get('/', (req, res) => {
-  res.json(members);
+router.get('/', async (req, res) => {
+  try {
+    const members = await Member.find().sort({ name: 1 });
+    res.json(members);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Get member by id
-router.get('/:id', (req, res) => {
-  const { id } = req.params;
-  const member = members.find(m => m.id === Number(id));
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const member = await Member.findById(id);
 
-  if (!member) {
-    return res.status(404).json({ error: 'Member not found' });
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    res.json(member);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  res.json(member);
 });
 
 // Add member
-router.post('/', (req, res) => {
-  const { name, bank, account } = req.body;
+router.post('/', async (req, res) => {
+  try {
+    const { name, bank, account } = req.body;
 
-  if (!name) {
-    return res.status(400).json({ error: 'Name is required' });
+    if (!name) {
+      return res.status(400).json({ error: 'Name is required' });
+    }
+
+    const member = new Member({
+      name,
+      bank: bank || '',
+      account: account || ''
+    });
+
+    await member.save();
+    res.status(201).json(member);
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ error: 'Member already exists' });
+    }
+    res.status(500).json({ error: error.message });
   }
-
-  const newMember = {
-    id: nextId++,
-    name,
-    bank: bank || '',
-    account: account || ''
-  };
-
-  members.push(newMember);
-  res.status(201).json(newMember);
 });
 
 // Update member
-router.put('/:id', (req, res) => {
-  const { id } = req.params;
-  const member = members.find(m => m.id === Number(id));
+router.put('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const member = await Member.findByIdAndUpdate(id, req.body, { new: true });
 
-  if (!member) {
-    return res.status(404).json({ error: 'Member not found' });
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    res.json(member);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  Object.assign(member, req.body);
-  res.json(member);
 });
 
 // Delete member
-router.delete('/:id', (req, res) => {
-  const { id } = req.params;
-  const index = members.findIndex(m => m.id === Number(id));
+router.delete('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    const member = await Member.findByIdAndDelete(id);
 
-  if (index === -1) {
-    return res.status(404).json({ error: 'Member not found' });
+    if (!member) {
+      return res.status(404).json({ error: 'Member not found' });
+    }
+
+    res.json(member);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
-
-  const deleted = members.splice(index, 1);
-  res.json(deleted[0]);
 });
 
 export default router;

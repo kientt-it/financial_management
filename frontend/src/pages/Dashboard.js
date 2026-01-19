@@ -14,6 +14,7 @@ export default function Dashboard() {
   );
   const [loading, setLoading] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     loadData();
@@ -21,20 +22,24 @@ export default function Dashboard() {
 
   useEffect(() => {
     loadMonthlyData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedMonth]);
 
   const loadData = async () => {
     try {
       setLoading(true);
+      setError(null);
+      console.log('📊 Loading data from API...');
       const [expRes, memRes] = await Promise.all([
         expensesAPI.getAll(),
         membersAPI.getAll(),
       ]);
+      console.log('✅ Data loaded:', { expenses: expRes.data.length, members: memRes.data.length });
       setExpenses(expRes.data);
       setMembers(memRes.data);
     } catch (error) {
-      console.error('Error loading data:', error);
-      alert('Lỗi khi tải dữ liệu');
+      console.error('❌ Error loading data:', error);
+      setError(`Lỗi kết nối API: ${error.message}`);
     } finally {
       setLoading(false);
     }
@@ -42,10 +47,12 @@ export default function Dashboard() {
 
   const loadMonthlyData = async () => {
     try {
+      console.log('📈 Loading monthly calculations...');
       const res = await calculationsAPI.getMonthly(selectedMonth);
+      console.log('✅ Calculations loaded:', res.data.length);
       setCalculations(res.data);
     } catch (error) {
-      console.error('Error loading calculations:', error);
+      console.error('❌ Error loading calculations:', error);
     }
   };
 
@@ -107,6 +114,15 @@ export default function Dashboard() {
             />
           </div>
         </div>
+
+        {error && (
+          <div className="error-message">
+            <strong>⚠️ {error}</strong>
+            <p style={{ fontSize: '12px', marginTop: '5px' }}>
+              Kiểm tra: Backend có chạy không? MONGODB_URI config đúng chưa?
+            </p>
+          </div>
+        )}
 
         {loading ? (
           <div className="loading">Đang tải...</div>
