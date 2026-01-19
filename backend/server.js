@@ -39,6 +39,25 @@ const startServer = async () => {
       res.json({ status: 'ok', timestamp: new Date().toISOString() });
     });
 
+    // Root API endpoint
+    app.get('/api', (req, res) => {
+      res.json({ 
+        message: 'Expense Manager API',
+        version: '1.0.0',
+        endpoints: {
+          expenses: '/api/expenses',
+          members: '/api/members',
+          calculations: '/api/calculations',
+          health: '/api/health'
+        }
+      });
+    });
+
+    // 404 handler
+    app.use((req, res) => {
+      res.status(404).json({ error: 'Not found' });
+    });
+
     app.listen(PORT, () => {
       console.log(`\n✅ Server running on port ${PORT}`);
       console.log(`📍 API: http://localhost:${PORT}/api`);
