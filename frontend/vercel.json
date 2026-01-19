@@ -1,8 +1,13 @@
 {
-  "buildCommand": "npm run build --workspace=frontend",
-  "installCommand": "npm install",
-  "outputDirectory": "frontend/build",
-  "env": {
-    "REACT_APP_API_URL": "@react_app_api_url"
-  }
+  "version": 2,
+  "builds": [
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "build"
+      }
+    }
+  ]
 }
+
