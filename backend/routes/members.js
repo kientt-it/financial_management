@@ -1,5 +1,6 @@
 import express from 'express';
 import { Member } from '../models/Member.js';
+import { defaultMembers } from '../models/data.js';
 
 const router = express.Router();
 
@@ -9,7 +10,9 @@ router.get('/', async (req, res) => {
     const members = await Member.find().sort({ name: 1 });
     res.json(members);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    // Fallback to default members if DB fails
+    console.warn('⚠️  Returning fallback members:', error.message);
+    res.json(defaultMembers);
   }
 });
 

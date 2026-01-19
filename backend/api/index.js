@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { connectDB } from '../config/db.js';
+import { defaultMembers, defaultExpenses } from '../models/data.js';
 
 dotenv.config();
 
@@ -16,27 +17,23 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Initialize DB once
-let dbInitialized = false;
+// Initialize DB (non-blocking)
+let dbConnected = false;
+initializeDB();
 
-const initializeDB = async () => {
-  if (!dbInitialized) {
-    try {
-      console.log('🔗 Connecting to MongoDB...');
-      await connectDB();
-      dbInitialized = true;
-      console.log('✅ MongoDB ready');
-    } catch (error) {
-      console.error('❌ DB Error:', error.message);
-      // Don't fail - API can work in memory
-    }
+async function initializeDB() {
+  try {
+    console.log('🔗 Connecting to MongoDB...');
+    await connectDB();
+    dbConnected = true;
+    console.log('✅ MongoDB connected');
+  } catch (error) {
+    console.error('⚠️  MongoDB not available:', error.message);
+    console.log('📦 Using in-memory fallback data');
   }
-};
+}
 
-// Initialize DB on startup (non-blocking)
-initializeDB().catch(err => console.error('Init error:', err));
-
-// Import routes after express setup
+// Import routes
 import expenseRoutes from '../routes/expenses.js';
 import memberRoutes from '../routes/members.js';
 import calculationRoutes from '../routes/calculations.js';
@@ -46,7 +43,7 @@ app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'ok', 
     timestamp: new Date().toISOString(),
-    db: dbInitialized ? 'connected' : 'connecting'
+    db: dbConnected ? 'connected' : 'memory'
   });
 });
 
@@ -54,6 +51,7 @@ app.get('/api', (req, res) => {
   res.json({ 
     message: 'Expense Manager API',
     version: '1.0.0',
+    mode: dbConnected ? 'mongodb' : 'memory',
     endpoints: {
       expenses: '/api/expenses',
       members: '/api/members',
@@ -61,6 +59,14 @@ app.get('/api', (req, res) => {
       health: '/api/health'
     }
   });
+});
+
+// Routes with timeout protection
+app.use((req, res, next) => {
+  res.setTimeout(5000, () => {
+    res.status(408).json({ error: 'Request timeout' });
+  });
+  next();
 });
 
 app.use('/api/expenses', expenseRoutes);
