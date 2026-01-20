@@ -1,14 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import ExpenseForm from '../components/ExpenseForm';
+import ExpenseForm from '../components/ExpenseForm-new';
 import ExpenseList from '../components/ExpenseList';
 import SettlementTable from '../components/SettlementTable';
 import UserProfile from '../components/UserProfile';
-import { expensesAPI, membersAPI, calculationsAPI } from '../api';
+import { expensesAPI, calculationsAPI } from '../api';
 import './Dashboard.css';
 
 export default function Dashboard() {
   const [expenses, setExpenses] = useState([]);
-  const [members, setMembers] = useState([]);
   const [calculations, setCalculations] = useState([]);
   const [selectedMonth, setSelectedMonth] = useState(
     new Date().toISOString().split('T')[0].slice(0, 7)
@@ -30,14 +29,10 @@ export default function Dashboard() {
     try {
       setLoading(true);
       setError(null);
-      console.log('📊 Loading data from API...');
-      const [expRes, memRes] = await Promise.all([
-        expensesAPI.getAll(),
-        membersAPI.getAll(),
-      ]);
-      console.log('✅ Data loaded:', { expenses: expRes.data.length, members: memRes.data.length });
-      setExpenses(expRes.data);
-      setMembers(memRes.data);
+      console.log('📊 Loading expenses from API...');
+      const expRes = await expensesAPI.getAll();
+      console.log('✅ Expenses loaded:', expRes.length);
+      setExpenses(expRes);
     } catch (error) {
       console.error('❌ Error loading data:', error);
       setError(`Lỗi kết nối API: ${error.message}`);
@@ -133,7 +128,6 @@ export default function Dashboard() {
             
             <ExpenseForm
               onSubmit={handleAddExpense}
-              members={members}
               initialData={editingExpense}
             />
 
