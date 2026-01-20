@@ -9,9 +9,11 @@ dotenv.config();
 const app = express();
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-change-in-production';
 
-// In-memory user store (temporary)
+// In-memory stores
 const users = new Map();
+const expenses = new Map();
 let userIdCounter = 1;
+let expenseIdCounter = 1;
 
 // Middleware
 app.use(cors({
@@ -197,6 +199,185 @@ app.get('/api/auth/users', authMiddleware, (req, res) => {
       allUsers.push(userData);
     }
     res.json(allUsers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ===== EXPENSES ENDPOINTS =====
+
+// Get expenses
+app.get('/api/expenses', authMiddleware, (req, res) => {
+  try {
+    const userExpenses = [];
+    for (let expense of expenses.values()) {
+      if (expense.createdBy === req.userId || 
+          expense.participants.includes(req.userId) ||
+          expense.payer === req.userId) {
+        userExpenses.push(expense);
+      }
+    }
+    res.json(userExpenses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get expenses by month
+app.get('/api/expenses/month/:month', authMiddleware, (req, res) => {
+  try {
+    const { month } = req.params;
+    const [year, monthNum] = month.split('-');
+    const startDate = new Date(year, monthNum - 1, 1);
+    const endDate = new Date(year, monthNum, 0);
+
+    const monthExpenses = [];
+    for (let expense of expenses.values()) {
+      const expDate = new Date(expense.date);
+      if (expDate >= startDate && expDate <= endDate &&
+          (expense.createdBy === req.userId || 
+           expense.participants.includes(req.userId) ||
+           expense.payer === req.userId)) {
+        monthExpenses.push(expense);
+      }
+    }
+    res.json(monthExpenses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Create expense
+app.post('/api/expenses', authMiddleware, (req, res) => {
+  try {
+    const { date, description, amount, category, payer, participants } = req.body;
+
+    if (!date || !description || !amount || !payer) {
+      return res.status(400).json({ error: 'Missing required fields' });
+    }
+
+    const expenseId = String(expenseIdCounter++);
+    const expense = {
+      id: expenseId,
+      createdBy: req.userId,
+      date: new Date(date),
+      description,
+      amount: Number(amount),
+      category: category || 'Other',
+      payer,
+      participants: participants || [payer],
+      createdAt: new Date()
+    };
+
+    expenses.set(expenseId, expense);
+    res.status(201).json(expense);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Update expense
+app.put('/api/expenses/:id', authMiddleware, (req, res) => {
+  try {
+    const expense = expenses.get(req.params.id);
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    if (expense.createdBy !== req.userId) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    const { date, description, amount, category, payer, participants } = req.body;
+    
+    if (date) expense.date = new Date(date);
+    if (description) expense.description = description;
+    if (amount) expense.amount = Number(amount);
+    if (category) expense.category = category;
+    if (payer) expense.payer = payer;
+    if (participants) expense.participants = participants;
+
+    expenses.set(req.params.id, expense);
+    res.json(expense);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Delete expense
+app.delete('/api/expenses/:id', authMiddleware, (req, res) => {
+  try {
+    const expense = expenses.get(req.params.id);
+    if (!expense) {
+      return res.status(404).json({ error: 'Expense not found' });
+    }
+
+    if (expense.createdBy !== req.userId) {
+      return res.status(403).json({ error: 'Not authorized' });
+    }
+
+    expenses.delete(req.params.id);
+    res.json({ message: 'Deleted' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get calculations
+app.get('/api/calculations/monthly/:month', authMiddleware, (req, res) => {
+  try {
+    const { month } = req.params;
+    const [year, monthNum] = month.split('-');
+    const startDate = new Date(year, monthNum - 1, 1);
+    const endDate = new Date(year, monthNum, 0);
+
+    const calculations = {};
+    
+    // Initialize all users
+    for (let user of users.values()) {
+      calculations[user.id] = {
+        id: user.id,
+        username: user.username,
+        fullName: user.fullName,
+        totalExpense: 0,
+        paid: 0,
+        owes: 0,
+        isOwedBy: 0
+      };
+    }
+
+    // Calculate shares
+    for (let expense of expenses.values()) {
+      const expDate = new Date(expense.date);
+      if (expDate < startDate || expDate > endDate) continue;
+
+      const payerId = expense.payer;
+      const participantIds = expense.participants;
+      const sharePerPerson = expense.amount / participantIds.length;
+
+      if (calculations[payerId]) {
+        calculations[payerId].paid += expense.amount;
+      }
+
+      participantIds.forEach(participantId => {
+        if (calculations[participantId]) {
+          calculations[participantId].totalExpense += sharePerPerson;
+        }
+      });
+    }
+
+    // Calculate who owes whom
+    Object.keys(calculations).forEach(userId => {
+      const calc = calculations[userId];
+      const difference = calc.paid - calc.totalExpense;
+      if (difference > 0) {
+        calc.isOwedBy = difference;
+      } else {
+        calc.owes = Math.abs(difference);
+      }
+    });
+
+    res.json(Object.values(calculations));
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
