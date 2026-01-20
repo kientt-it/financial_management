@@ -63,9 +63,7 @@ app.get('/api', (req, res) => {
 
 // Routes with timeout protection
 app.use((req, res, next) => {
-  res.setTimeout(5000, () => {
-    res.status(408).json({ error: 'Request timeout' });
-  });
+  res.setTimeout(30000); // 30 second timeout for Vercel
   next();
 });
 
