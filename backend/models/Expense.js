@@ -2,6 +2,11 @@ import mongoose from 'mongoose';
 
 const expenseSchema = new mongoose.Schema(
   {
+    createdBy: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
+      required: true
+    },
     date: {
       type: Date,
       required: true
@@ -19,13 +24,14 @@ const expenseSchema = new mongoose.Schema(
       default: 'Other'
     },
     payer: {
-      type: String,
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User',
       required: true
     },
-    participants: {
-      type: [String],
-      default: []
-    },
+    participants: [{
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'User'
+    }],
     status: {
       type: String,
       enum: ['Pending', 'Completed'],
