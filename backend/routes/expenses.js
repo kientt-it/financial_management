@@ -1,5 +1,6 @@
 import express from 'express';
 import { Expense } from '../models/Expense.js';
+import { defaultExpenses } from '../models/data.js';
 
 const router = express.Router();
 
@@ -9,7 +10,8 @@ router.get('/', async (req, res) => {
     const expenses = await Expense.find().sort({ date: -1 });
     res.json(expenses);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn('⚠️  Returning fallback expenses:', error.message);
+    res.json(defaultExpenses);
   }
 });
 
