@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import ExpenseForm from '../components/ExpenseForm';
 import ExpenseList from '../components/ExpenseList';
 import SettlementTable from '../components/SettlementTable';
+import UserProfile from '../components/UserProfile';
 import { expensesAPI, membersAPI, calculationsAPI } from '../api';
 import './Dashboard.css';
 
@@ -128,6 +129,8 @@ export default function Dashboard() {
           <div className="loading">Đang tải...</div>
         ) : (
           <>
+            <UserProfile />
+            
             <ExpenseForm
               onSubmit={handleAddExpense}
               members={members}
