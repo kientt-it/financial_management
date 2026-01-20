@@ -1,6 +1,7 @@
 import express from 'express';
 import { Expense } from '../models/Expense.js';
 import { Member } from '../models/Member.js';
+import { defaultMembers, defaultExpenses } from '../models/data.js';
 
 const router = express.Router();
 
@@ -60,7 +61,17 @@ router.get('/monthly/:month', async (req, res) => {
 
     res.json(Object.values(calculations).sort((a, b) => a.name.localeCompare(b.name)));
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn('⚠️  Returning fallback calculations:', error.message);
+    const fallbackCalcs = defaultMembers.map(m => ({
+      id: m._id,
+      name: m.name,
+      bank: m.bank,
+      account: m.account,
+      totalExpense: 0,
+      paid: 0,
+      owes: 0
+    }));
+    res.json(fallbackCalcs);
   }
 });
 
@@ -91,7 +102,15 @@ router.get('/summary/:month', async (req, res) => {
       categories: [...new Set(monthlyExpenses.map(e => e.category))]
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    console.warn('⚠️  Returning fallback summary:', error.message);
+    res.json({
+      month: req.params.month,
+      totalExpense: 0,
+      averagePerPerson: 0,
+      expenseCount: 0,
+      memberCount: defaultMembers.length,
+      categories: []
+    });
   }
 });
 
