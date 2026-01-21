@@ -45,8 +45,8 @@ export default function Dashboard() {
     try {
       console.log('📈 Loading monthly calculations...');
       const res = await calculationsAPI.getMonthly(selectedMonth);
-      console.log('✅ Calculations loaded:', res.data.length);
-      setCalculations(res.data);
+      console.log('✅ Calculations loaded:', res.length);
+      setCalculations(res);
     } catch (error) {
       console.error('❌ Error loading calculations:', error);
     }
@@ -138,7 +138,6 @@ export default function Dashboard() {
             {monthlyExpenses.length > 0 ? (
               <ExpenseList
                 expenses={monthlyExpenses}
-                members={members}
                 onEdit={handleEditExpense}
                 onDelete={handleDeleteExpense}
               />
