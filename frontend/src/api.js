@@ -22,8 +22,14 @@ api.interceptors.request.use((config) => {
 
 // Expenses API
 export const expensesAPI = {
-  getAll: () => api.get('/expenses'),
-  getByMonth: (month) => api.get(`/expenses/month/${month}`),
+  getAll: async () => {
+    const res = await api.get('/expenses');
+    return res.data || [];
+  },
+  getByMonth: async (month) => {
+    const res = await api.get(`/expenses/month/${month}`);
+    return res.data || [];
+  },
   create: (data) => api.post('/expenses', data),
   update: (id, data) => api.put(`/expenses/${id}`, data),
   delete: (id) => api.delete(`/expenses/${id}`),
@@ -31,7 +37,10 @@ export const expensesAPI = {
 
 // Members API
 export const membersAPI = {
-  getAll: () => api.get('/auth/users'),
+  getAll: async () => {
+    const res = await api.get('/auth/users');
+    return res.data || [];
+  },
   getById: (id) => api.get(`/members/${id}`),
   create: (data) => api.post('/members', data),
   update: (id, data) => api.put(`/members/${id}`, data),
@@ -40,8 +49,14 @@ export const membersAPI = {
 
 // Calculations API
 export const calculationsAPI = {
-  getMonthly: (month) => api.get(`/calculations/monthly/${month}`),
-  getSummary: (month) => api.get(`/calculations/summary/${month}`),
+  getMonthly: async (month) => {
+    const res = await api.get(`/calculations/monthly/${month}`);
+    return res.data || [];
+  },
+  getSummary: async (month) => {
+    const res = await api.get(`/calculations/summary/${month}`);
+    return res.data || [];
+  },
 };
 
 export default api;

@@ -6,6 +6,22 @@
   margin-bottom: 20px;
 }
 
+.expense-form h2 {
+  margin: 0 0 20px 0;
+  color: #333;
+  font-size: 20px;
+}
+
+.error-message {
+  background-color: #fee;
+  color: #c33;
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 15px;
+  font-size: 14px;
+  border-left: 4px solid #c33;
+}
+
 .form-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -44,6 +60,80 @@
   outline: none;
   border-color: #2196f3;
   box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.1);
+}
+
+.category-input {
+  display: flex;
+  gap: 8px;
+}
+
+.category-input input {
+  flex: 1;
+}
+
+.btn-add-category {
+  padding: 10px 14px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-add-category:hover {
+  background: #667eea;
+  color: white;
+  border-color: #667eea;
+}
+
+.participants-list {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  background: #f9f9f9;
+  border: 1px solid #eee;
+  border-radius: 4px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.participant-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  transition: background 0.2s;
+}
+
+.participant-checkbox:hover {
+  background: #f0f0f0;
+}
+
+.participant-checkbox input[type="checkbox"] {
+  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: #667eea;
+}
+
+.participant-checkbox span {
+  flex: 1;
+  font-size: 14px;
+}
+
+.participant-checkbox .username {
+  color: #999;
+  font-size: 12px;
+  margin-left: auto;
+}
+
+.empty-message {
+  text-align: center;
+  color: #999;
+  padding: 20px;
 }
 
 .participants-grid {
